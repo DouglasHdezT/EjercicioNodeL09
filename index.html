@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+        crossorigin="anonymous">
+
+    <title>JS Intermedio.</title>
+</head>
+
+<body id="id_body">
+
+    <header id="front-img">
+        <div class="main-front">
+            <h1>Ejercicio L09.</h1>
+            <h3>Viernes, 26 de Octubre de 2018.</h3>
+            <i class="fas fa-chevron-down" id="down-button"></i>
+        </div>
+    </header>
+
+    <section class="content">
+
+        <header class="title-content" id="title-content">
+            <div id="brand">
+                <h1>Ejercicio Node.js.</h1>
+            </div>
+            <div id="content-brand">
+                <h5>API.</h5>
+            </div>
+        </header>
+        
+        <section>
+
+            <article>
+                <header>
+                    <h3>Indicaciones generales.</h3>
+                </header>
+                <p>
+                    Complete la guía, realizando paso a paso cada una de las siguientes indicaciones, además deberá responder a las interrogantes que se harán a lo largo del desarrolo del ejercicio. Dichas respuestas serán colocadas en el comentario de la entrega junto al link del repositorio (Laboratorio_09_Carnet). Para este caso no será necesario la entrega a través de github pages.
+                </p>
+            </article>
+
+            <article>
+                <header>
+                    <h3>Preparación del ambiente de trabajo.</h3>
+                </header>
+
+                <p>
+                    En primer lugar se deberá descargar el directorio comprimido que se encuentra en el aula virtual, en la sección correspondiente al Laboratorio 09.
+                </p>
+
+                <p>
+                    Dentro de este directorio se encuentran todos los ficheros necesarios para poder realizar la práctica, estos deberán ser revisados para conocer la estructura html del sitio. Además se requiere verificar que se posea instalado node.js en su computadora haciendo uso del comando <code>node -v</code>.
+                </p>
+
+                <p>
+                    Para fines prácticos, en este laboratorio se trabajará mayoritariamente con el fichero "main.js" dentro de la carpeta "app", ya que este servirá como controlador de nuestro servidor en node.js
+                </p>
+            </article>
+
+            <article>
+                <header>
+                    <h3>Declaración y definición de los módulos a utlizar.</h3>
+                </header>
+                <ol>
+                    <li>
+                        <p>Una vez dento del fichero "main.js" se importarán los siguientes módulos: HTTP, FileSystem, URL y querystring. Estos serán almancenados en cosntantes independientes para su posterior uso.</p>
+
+                        <div class="block-code">
+                            <code>
+                                const http = require('http'),<br>
+                                    &ensp;&ensp;fs = require('fs'),<br>
+                                    &ensp;&ensp;url = require('url'),<br>
+                                    &ensp;&ensp;{<br>
+                                    &ensp;&ensp;&ensp;&ensp;parse<br>
+                                    &ensp;&ensp;} = require('querystring');<br>
+                                    <br>
+                                mimeTypes = {<br>
+                                    &ensp;&ensp;"html": "text/html",<br>
+                                    &ensp;&ensp;"jpeg": "image/jpeg",<br>
+                                    &ensp;&ensp;"jpg": "image/jpeg",<br>
+                                    &ensp;&ensp;"png": "image/png",<br>
+                                    &ensp;&ensp;"js": "text/javascript",<br>
+                                    &ensp;&ensp;"css": "text/css"<br>
+                                };
+                            </code>
+                        </div>
+                    </li>
+                </ol>
+                <ul>
+                    <li>¿Cuál es la principal función del módulo HTTP?</li>
+                    <li>¿Cuál es la principal función del módulo FileSystem?</li>
+                    <li>¿Qué es un MIME type?</li>
+                </ul>
+            </article>
+
+            <article>
+                <header>
+                    <h3>Creación del servidor</h3>
+                </header>
+                <ol>
+                    <li>
+                        <p>
+                            A continuación se debe crear la instancia del servidor; Esto se logra  a través del método createServer del módulo HTTP. Este estará escuchando las peticiones en el puerto 8081.
+                        </p>
+                        <div class="block-code">
+                            <code>
+                                http.createServer((req, res)=>{ <br>
+                                    &ensp;&ensp;//Control code. <br>
+                                }).listen(8081);
+                            </code>
+                        </div>
+                    </li>
+                    <li>
+                        <p>
+                            Además del servidor se hará uso de una función controladora, la cual se encargará de convertir los campos de una petición en un objeto con todos los campos de la misma. La definición de esta deberá estar al mismo nivel de la creación del servidor.
+                        </p>
+                        <div class="block-code">
+                            <code>
+                                function collectRequestData(request, callback) { <br><br>
+                                    &ensp;&ensp;const FORM_URLENCODED = 'application/x-www-form-urlencoded'; <br>
+                                    &ensp;&ensp;if (request.headers['content-type'] === FORM_URLENCODED) { <br>
+                                        &ensp;&ensp;&ensp;&ensp;let body = ''; <br>
+                                        &ensp;&ensp;&ensp;&ensp;// Evento de acumulacion de data. <br>
+                                        &ensp;&ensp;&ensp;&ensp;request.on('data', chunk => { <br>
+                                            &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;body += chunk.toString(); <br>
+                                        &ensp;&ensp;&ensp;&ensp;}); <br>
+                                        &ensp;&ensp;&ensp;&ensp;// Data completamente recibida  <br>
+                                        &ensp;&ensp;&ensp;&ensp;request.on('end', () => { <br>
+                                            &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;callback(null, parse(body)); <br>
+                                        &ensp;&ensp;&ensp;&ensp;}); <br>
+                                    &ensp;&ensp;} else { <br>
+                                        &ensp;&ensp;&ensp;&ensp;callback({ <br>
+                                            &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;msg: `The content-type don't is equals to ${FORM_URLENCODED}` <br>
+                                        &ensp;&ensp;&ensp;&ensp;}); <br>
+                                    &ensp;&ensp;} <br><br>
+                                }
+                            </code>
+                        </div>
+                    </li>
+                </ol>
+                <ul>
+                    <li>¿Qué contienen las variables "req" y "res" en la creación del servidor?</li>
+                    <li>¿La instrucción .listen(number) puede fallar? Justifique.</li>
+                    <li>¿Por qué es útil la función "collectRequestData(...)"?</li>
+                </ul>
+            </article>
+
+            <article>
+                <header>
+                    <h3>Manejo de peticiones.</h3>
+                </header>
+
+                <p>
+                    En este laboratorio se estudiarán tres variantes de peticiones que pueden realizarse a un servidor, y las formas que tiene este de responder a estas. En primer se deberán de definir ciertas variables de uso frecuente y realizar ciertas validaciones. Todo a continuación se encuentra dentro del callback de la función <code>http.createServer(...)</code>
+                </p>
+
+                <ol>
+                    <li>
+                        <p>
+                            La variable pathname es una referencia a la dirección que realiza la petición. Se hace uso del módulo URL para realizar un parse de la dirección a string.
+                        </p>
+                        <div class="block-code">
+                            <code>
+                                var pathname = url.parse(req.url).pathname; 
+                            </code>
+                        </div>
+                    </li>
+                    <li>
+                        <p>
+                            la ruta "/" es aquella que representa la dirección por defecto y esta enlazada a index.html, por lo que se redefinirá como tal para una mejor comprensión y falcilidad de uso.
+                        </p>
+                        <div class="block-code">
+                            <code>
+                            if(pathname == "/"){<br>
+                            &ensp;&ensp;pathname = "../index.html";<br>
+                            }
+                            </code>
+                        </div>
+                    </li>
+                    <li>
+                        <p>
+                            Las peticiones a estudiar en este laboratorio son: Desde un formulario por método POST, una pertición GET de la página principal de nuestro sitio y una petición GET de una hoja CSS por parte de un archivo HTML. Para controlar estos eventos se tendrán las siguientes condiciones.
+                        </p>
+
+                        <div class="block-code">
+                            <code>
+                                if(pathname == "../index.html"){<br>
+                                    &ensp;&ensp;//Peticion de la pagina principal <br>
+                                } <br><br>
+
+                                if(req.method === 'POST' && pathname == '/cv'){ <br>
+                                    &ensp;&ensp;//Peticion del formulario a traves del metodo POST <br>
+                                } <br><br>
+
+                                if(pathname.split(".")[1] == "css"){ <br>
+                                    &ensp;&ensp;//Peticion de la hoja CSS <br>
+                                }
+                            </code>
+                        </div>
+                        <p>A continuación se detallarán cada una de las peticiones.</p>
+                    </li>
+                </ol>
+                <ul>
+                    <li>¿Para qué, además de conocer la dirección de la petición, es útil la variable "pathname"?</li>
+                </ul>
+            </article>
+
+            <article>
+                <header>
+                    <h3>Petición de la página principal.</h3>
+                </header>
+
+                <ol>
+                    <li>
+                        <p>
+                            Para manejar esta petición, primero se deberá de leer el fichero "index.html". Para ello se hará uso del módulo FileSystem y sus metodos.
+                        </p>
+                        <div class="block-code">
+                            <code>
+                                if(pathname == "../index.html"){<br>
+                                    &ensp;&ensp;fs.readFile(pathname, (err, data)=>{<br><br>
+                                    &ensp;&ensp;});<br>
+                                }
+                            </code>
+                        </div>
+                    </li>
+                    <li>
+                        <p>
+                            A paritr de esto se podrá acceder al contenido del fichero, asi como manejar la situación por si ocurre algún error en el proceso. Los datos obtenidos por la función deberán covertirse a String para poder trabajar con ellos; en este caso se responderá directamente el contenido del fichero.
+                        </p>
+                        <div class="block-code">
+                            <code>
+                                if(pathname == "../index.html"){<br>
+                                &ensp;&ensp;fs.readFile(pathname, (err, data)=>{<br><br>
+                                &ensp;&ensp;&ensp;&ensp;if (err) {<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;console.log(err);<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;// HTTP Status: 404 : NOT FOUND<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;// En caso no haberse encontrado el archivo<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.writeHead(404, {<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'Content-Type': 'text/html'<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;});
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return res.end("404 Not Found");
+                                &ensp;&ensp;&ensp;&ensp;}<br>
+                                &ensp;&ensp;&ensp;&ensp;// Pagina encontrada<br>	  
+                                &ensp;&ensp;&ensp;&ensp;// HTTP Status: 200 : OK<br>
+                                <br>
+                                &ensp;&ensp;&ensp;&ensp;res.writeHead(200, {<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'Content-Type': mimeTypes[pathname.split('.').pop()] || 'text/html'<br>
+                                &ensp;&ensp;&ensp;&ensp;});<br>
+                                <br>
+                                &ensp;&ensp;&ensp;&ensp;// Escribe el contenido de data en el body de la respuesta.<br>
+                                &ensp;&ensp;&ensp;&ensp;res.write(data.toString());<br>
+                                <br>
+                                <br>
+                                &ensp;&ensp;&ensp;&ensp;// Envia la respuesta <br>
+                                &ensp;&ensp;&ensp;&ensp;return res.end();<br>
+                                &ensp;&ensp;});<br>
+                                }
+                            </code>
+                        </div>
+                    </li>
+                </ol>
+                <ul>
+                    <li>
+                        <p>
+                            ¿Qué contine el parametro "data"?
+                        </p>
+                    </li>
+                </ul>
+            </article>
+
+            <article>
+                <header>
+                    <h3>Petición de la hoja CSS.</h3>
+                </header>
+                <ol>
+                    <li>
+                        <p>
+                            Este caso se maneja de forma identica al caso anterior, con la diferencia de algunos puntos como el mimeType de la respuesta, entre otros; a pesar de esto existe una diferencia clara en el comportamiento de ambas peticiones. 
+                        </p>
+                        <div class="block-code">
+                                <code>
+                                    if(pathname.split(".")[1] == "css"){<br>
+                                    &ensp;&ensp;fs.readFile(".."+pathname, (err, data)=>{<br><br>
+                                    &ensp;&ensp;&ensp;&ensp;if (err) {<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;console.log(err);<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.writeHead(404, {<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'Content-Type': 'text/html'<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;});
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return res.end("404 Not Found");
+                                    &ensp;&ensp;&ensp;&ensp;}<br>
+                                    <br>
+                                    &ensp;&ensp;&ensp;&ensp;res.writeHead(200, {<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'Content-Type': mimeTypes[pathname.split('.').pop()] || 'text/css'<br>
+                                    &ensp;&ensp;&ensp;&ensp;});<br>
+                                    <br>
+                                    &ensp;&ensp;&ensp;&ensp;// Escribe el contenido de data en el body de la respuesta.<br>
+                                    &ensp;&ensp;&ensp;&ensp;res.write(data.toString());<br>
+                                    <br>
+                                    <br>
+                                    &ensp;&ensp;&ensp;&ensp;// Envia la respuesta <br>
+                                    &ensp;&ensp;&ensp;&ensp;return res.end();<br>
+                                    &ensp;&ensp;});<br>
+                                    }
+                                </code>
+                            </div>
+                    </li>
+                </ol>
+                <ul>
+                    ¿Cuál es la diferencia entre brindar una respuesta HTML y brindar una CSS?
+                </ul>
+            </article>
+
+            <article>
+                <header>
+                    <h3>Petición POST a través del formulario.</h3>
+                </header>
+
+                <ol>
+                    <li>
+                        <p>
+                            Para este caso, primero se definirá una ruta especifica para recibir esta petición. En este caso será "/cv", y esta estará especificada en la condición inicial de control. Defirnir rutas nos permitirá controlar varias peticiones del mismo método pero de distinta ruta.
+                        </p>
+
+                        <p>
+                            Posterior a la definición de la ruta, se procede a recolectar los datos que vienen con la petición. Para ello se hará uso de la función que previamente se definió.
+                        </p>
+
+                        <div class="block-code">
+                            <code>
+                                if (req.method === 'POST' && pathname == "/cv") { <br>
+                                &ensp;&ensp;collectRequestData(req, (err, result) => { <br><br>
+                                &ensp;&ensp;&ensp;&ensp;if (err) { <br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.writeHead(400, { <br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'content-type': 'text/html' <br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}); <br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return res.end('Bad Request'); <br>
+                                &ensp;&ensp;&ensp;&ensp;} <br><br>
+                                &ensp;&ensp;}); <br>
+                                }
+                            </code>
+                        </div>
+                    </li>
+                    <li>
+                        <p>
+                            A este punto se tienen almacenados los datos recolectados por la petición, ahora se procederá a aplicar estos datos a una plantilla; esta se encuentra en el directorio "templates". Para ello se leerá dicho fichero de la misma forma que se ha realizado en los casos anteriores.  
+                        </p>
+
+                        <div class="block-code">
+                            <code>
+                                if (req.method === 'POST' && pathname == "/cv") { <br>
+                                &ensp;&ensp;collectRequestData(req, (err, result) => { <br><br>
+                                &ensp;&ensp;&ensp;&ensp;if (err) { <br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.writeHead(400, { <br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'content-type': 'text/html' <br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}); <br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return res.end('Bad Request'); <br>
+                                &ensp;&ensp;&ensp;&ensp;} <br><br>
+                                &ensp;&ensp;&ensp;&ensp;fs.readFile("../templates/plantilla.html", function (err, data) {<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if (err) {<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;console.log(err);<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;// HTTP Status: 404 : NOT FOUND<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;// Content Type: text/plain<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.writeHead(404, {<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'Content-Type': 'text/html'<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;});<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return res.end("404 Not Found");<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>
+                                    <br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.writeHead(200, {<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'Content-Type': mimeTypes[pathname.split('.').pop()] || 'text/html'<br>
+                                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;});<br>
+                                &ensp;&ensp;&ensp;&ensp;});<br><br>
+                                &ensp;&ensp;}); <br>
+                                }
+                            </code>
+                        </div>
+                    </li>
+                    <li>
+                        <p>
+                            Por último se prepará la respuesta, reemplazando los espacios genericos de la plantilla por las variables obtenidas del formulario. Para ello se aplicará la teoría de manipulación de arreglos y Strings. Una vez se tenga listo la cadena de texto adaptada se enviará como respuesta al navegador.
+                        </p>
+                        <div class="block-code">
+                                <code>
+                                    if (req.method === 'POST' && pathname == "/cv") { <br>
+                                    &ensp;&ensp;collectRequestData(req, (err, result) => { <br><br>
+                                    &ensp;&ensp;&ensp;&ensp;if (err) { <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.writeHead(400, { <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'content-type': 'text/html' <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}); <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return res.end('Bad Request'); <br>
+                                    &ensp;&ensp;&ensp;&ensp;} <br><br>
+                                    &ensp;&ensp;&ensp;&ensp;fs.readFile("../templates/plantilla.html", function (err, data) {<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if (err) {<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;console.log(err);<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;// HTTP Status: 404 : NOT FOUND<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;// Content Type: text/plain<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.writeHead(404, {<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'Content-Type': 'text/html'<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;});<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return res.end("404 Not Found");<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;}<br>
+                                    <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.writeHead(200, {<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'Content-Type': mimeTypes[pathname.split('.').pop()] || 'text/html'<br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;});<br>
+                                    <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;//Variables de control. <br>
+                                    <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;let parsedData = data.toString().replace('${dui}', result.dui) <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;.replace("${lastname}", result.lastname) <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;.replace("${firstname}", result.firstname) <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;.replace("${gender}", result.gender) <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;.replace("${civilStatus}", result.civilStatus) <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;.replace("${birth}", result.birth) <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;.replace("${exp}", result.exp) <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;.replace("${tel}", result.tel) <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;.replace("${std}", result.std); <br>
+                                    <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res.write(parsedData); <br>
+                                    &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return res.end(); <br>
+                                    &ensp;&ensp;&ensp;&ensp;});<br><br>
+                                    &ensp;&ensp;}); <br>
+                                    }
+                                </code>
+                            </div>
+                    </li>
+                </ol>
+                <ul>
+                    <li>¿Qué contiene la variable "result"?</li>
+                    <li>¿Por qué con la variable "data" se debe aplicarse el metodo toString()? Justifique.</li>
+                </ul>
+
+            </article>
+
+            <article>
+                <header>
+                    <h3>Inciar el servidor.</h3>
+                </header>
+                <p>
+                    Para iniciar el servidor y probar el sitio web, se debe abrir una Terminal y navegar hasta el directorio "app"; dentro de el de debe de ejecutar el comando <code>node main.js</code>, iniciando en ese momento el servidor.
+                </p>
+
+                <p>
+                    Para visualizar nuestro sitio web, se debe de colocar la siguiente dirección en el navegador:"localhost:8081". Esto nos dirigirá a la pagina principal del sitio.
+                </p>
+            </article>
+
+            <article>
+                <header>
+                    <h3>Preguntas adicionales.</h3>
+                </header>
+                <ul>
+                    <li>
+                        ¿Hay diferencia al quitar el control de peticiones para hojas CSS? Si sucedió algo distinto justifique por qué.
+                    </li>
+
+                    <li>
+                        ¿Se puede inciar el servidor (<code>node main.js</code>) en cualquier sitio del proyecto? Cualquier respuesta justifique.
+                    </li>
+
+                    <li>
+                        Con sus palabras, ¿Por qué es importante aprender Node.js sin el uso de frameworks a pesar que estos facilitan el manejo de API's?
+                    </li>
+                </ul>
+            </article>
+
+        </section>
+    </section>
+
+    <footer>
+        <article>
+            <p><em>
+                    “Siempre parece imposible hasta que se hace”
+                </em></p>
+            <p id="author">
+                Nelson Mandela.
+            </p>
+        </article>
+    </footer>
+
+    <span id="HomeBtn"><i class="fas fa-chevron-up"></i></span>
+</body>
+<script src="assets/js/jquery-3.3.1.min.js"></script>
+<script src="assets/js/javaScript.js"></script>
+
+</html>
